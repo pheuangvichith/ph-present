@@ -1,79 +1,120 @@
 ---
 name: ph-present
-description: Use when the user mentions ph.present or ph-present, asks to reverse-engineer a presentation video or template into an editable .pptx, build a PowerPoint deck with Morph transitions, or upgrade an existing .pptx presentation with complex scripts or dense technical diagrams.
+description: Use when the user mentions ph.present or ph-present, asks to reverse-engineer a slide video or template into an editable .pptx, build a projector-legible PowerPoint deck with Morph transitions or Thai/Lao typography, or upgrade an existing .pptx presentation.
 ---
 
 # ph-present
 
-Senior Presentation Architect & PowerPoint Morph compiler workflow for reverse-engineering reference decks/videos and designing original, PlacePlate-grade, 100% editable `.pptx` presentations.
+Senior Presentation Architect & Algorithmic Morph Pipeline for building 100% editable, projector-legible Microsoft PowerPoint (`.pptx`) decks and upgrading existing decks. Enforces a strict **4-Gate Data Flow** so the AI handles intake, perspective preservation, and visual taste while deterministic scripts handle layout math, Morph continuity, OOXML compilation, and verification.
 
-## Core Principles
+## Core Invariants
 
-1. **Natural Flow, Zero Interrogation Overhead:** Ask only what is missing before building—never stall behind multi-round questionnaires when the user already gave enough direction.
-2. **Content-First Invariant (Zero Content Loss):** Extract full substance first (`core_thesis`, `proof_points`, `takeaway`). When verified content exceeds one slide at `>= 11 pt`, split across Morph continuation slides instead of compressing or deleting points.
-3. **Unrestricted Visual Craft:** Derive art direction, whitespace (`>= 30%` on editorial/hero slides, `>= 18%` on Bento), and motion rigs from the brief or reference—never lock every deck into one motif.
-4. **100% Editable & Verified:** Build native shapes/charts, run `layout_solver.py` before export, and verify every rendered slide via `render_deck.py`.
+1. **No-Drop Content Contract:** Never shrink text below readable projector scale or drop key viewpoints/proof points to force a single slide. When content exceeds safe density, split cleanly into Morph-linked continuation slides.
+2. **Data Integrity:** Never invent metrics or placeholder numbers. Mark missing quantitative inputs as `[NEED DATA]` during planning.
+3. **100% Editable Native Objects:** Build cards, pills, rings, gears, tables, and charts as native PowerPoint OOXML shapes/charts (`scripts/pptx_morph_kit.py` or `python-pptx`), never flattened slide screenshots.
 
 ## Bundled Toolkit (Invoke via `python3`)
 
-- **Motion Rigs, Deconstruction & OOXML:** `references/morph-rigs-and-ooxml.md`
-- **Benchmarks & Offline/Online Matrix:** `references/benchmarks.md`
-- **Layout & Thai/Lao Constraint Solver:** `python3 scripts/layout_solver.py` (syllable-aware Thai/Lao wrap, TTF height sizing, `solve_vertical_stack`, `check_aabb_collisions`, `validate_content_inventory`)
-- **Zero-Dependency OOXML + SVG Builder:** `scripts/pptx_morph_kit.py`
-- **Audit + Render + Contact Sheet Gate:** `python3 scripts/render_deck.py <deck.pptx>`
+- **Motion Rigs, Deconstruction & OOXML Cookbook:** `references/morph-rigs-and-ooxml.md`
+- **Benchmarks & Desktop/Web Matrix:** `references/benchmarks.md`
+- **Layout & Thai/Lao Constraint Solver:** `python3 scripts/layout_solver.py` (`segment_thai_lao_tokens`, `measure_text_block`, `solve_vertical_stack`, `check_aabb_collisions`, `compute_whitespace_ratio`, `validate_content_inventory`)
+- **Zero-Dependency OOXML + SVG + Chart + Timing Kit:** `python3 scripts/pptx_morph_kit.py` (`SlideBuilder`, `write_pptx`, `make_svg_shape`, `make_radial_glow`, `make_portal_mask`, `build_curtain_pair`, `make_video_frame`, `split_script_runs`, `rpr_xml`, `build_*_chart_xml`, `build_minimal_xlsx`)
+- **Audit + Render + Contact Sheet Gate:** `python3 scripts/render_deck.py <deck.pptx> --target desktop|web`
 
-## Workflow
+---
 
-### Step 1: Smart Intake Gate
+## The 4-Gate Data Flow
 
-Evaluate what the user already provided:
-- **Predicate A (Visual reference/style provided):** If the prompt supplies a video, link, `.pptx`, mockup, or explicit aesthetic direction, proceed straight to Step 2 without pausing for questions.
-- **Predicate B (Topic/content only, no visual direction):** Ask **one concise check** in a single turn:
-  - Whether they already have a **Landing look or Morph style** in mind (or prefer AI benchmark selection)
-  - Only if unstated and decision-critical: **Desktop Offline vs. PowerPoint Web** target, or **missing real numbers** where placeholders would otherwise be needed.
-- **If the user tells you to pick/proceed:** Choose the best-fit art direction, record your call clearly, and move straight to Step 2.
+### Gate 1: Grill Me (Budgeted Smart Intake)
 
-### Step 2: Content Inventory & Benchmark Elevation
+Do not jump straight into code or slides. Interview the user with up to 5 sharp questions (using smart assumptions so the user only confirms or corrects):
 
-1. **Populate the Slide Content Inventory (Required Contract):**
-   For every planned slide, define:
-   - `core_thesis` (single main takeaway)
-   - `proof_points` / verified metrics
-   - `takeaway`
-   - **Data Integrity Contract:** Use **only** numbers supplied by the user, source files, or cited research. Represent missing quantitative values qualitatively or mark `[NEED DATA]`—never invent unverified percentages, counts, or mockup stats.
-2. **Select Elevation Mode:**
-   - **Benchmark Mode (flagship / landing design):** Use `search_web` to inspect 500+ engagement design/presentation references matching the domain, sample tokens/pacing, and log reusable structural patterns to `references/benchmarks.md`.
-   - **Fast Pattern Mode (urgent / clear style):** Select an archetype from `references/benchmarks.md` + `references/morph-rigs-and-ooxml.md`.
-3. **Map Storyboard & Morph Continuity Matrix:**
-   - Alternate layouts across adjacent slides (never repeat the exact same grid 3 slides in a row).
-   - Select **1–2 Primary Motion Rigs** (*Parallax Depth*, *Off-Canvas Track*, *Depth Card Stack*, *Crop-to-Pan*, *Split-Curtain / SVG Mask*, *Portal Zoom*, or *Rotary Dial*) and map every `!!anchor` across `Slide N -> Slide N+1`.
+1. **Goal & Audience:** Who is watching and what decision/action must this deck drive?
+2. **Must-Keep Perspectives & Verified Data:** What core arguments, angles, or real metrics must NOT be cut? (Flag missing numbers as `[NEED DATA]`.)
+3. **Reference & Real Assets:** Does the user have an existing `.pptx`, video, link, or style to follow—plus any real logos, photos, maps, or closing videos (`!!closing_video`) to include?
+4. **Language & Font Availability:** Which languages are used (Thai, Lao `Phetsarath OT` / `Noto Sans Lao`, English) and are those fonts installed on the playback machine (or needed via `.odttf` embedding)?
+5. **Delivery & Environment:**
+   - **Playback Target:** `desktop` (PowerPoint Offline: full 3D `<a:scene3d>`, `.odttf` fonts, `<p:timing>`), `web` (PowerPoint Online safe subset), or `read-only` (PDF/handout: each slide must read cleanly standalone without relying on multi-click Morph reveals).
+   - **Room Lighting:** Bright room/projector (favor high-contrast light canvas) vs. dark/stage room (dark/crimson canvas works well).
 
-### Step 3: Solve Layout First, Then Compile Native OOXML
+---
 
-1. **Pre-Build Constraint Solver (`scripts/layout_solver.py`):**
-   - Call `validate_content_inventory()` before building slides.
-   - Measure every Thai/Lao/Latin text block via `measure_text_block()` and `solve_vertical_stack()`. Route `overflow_ids` to a Morph continuation / Crop-to-Pan sub-slide rather than lowering fonts below `9.5–11 pt`.
-   - Verify `check_aabb_collisions(boxes) == []` and whitespace ratio (`>= 0.28` editorial, `>= 0.18` Bento).
-2. **4-Layer Separation & `!!` Discipline:**
-   - **Vectors, Radial Glow & Compound Masks:** Build cards, pills, custom curves (`make_svg_shape`), ambient radial glows (`make_radial_glow`), and single-shape compound-path portal masks (`make_portal_mask`) as native AutoShapes or `<a:custGeom>`.
-   - **Editable Multi-Charts:** Use `build_clustered_bar_chart_xml`, `build_stacked_bar_chart_xml`, `build_line_chart_xml`, or `build_doughnut_chart_xml` + `build_minimal_xlsx` (pass matching dark or light `text_color` / `grid_color`). Keep KPI callouts outside chart axes.
-   - **Media Layers:** Keep cutout PNGs, photos, and embedded `!!closing_video` (`make_video_frame`, `10.0 x 5.625 in` at `(0,0)`) intact in `ppt/media/`.
-   - **Selection Pane (`!!`):** Prefix only 5–15 persistent hero anchors per slide; keep interior Bento nodes/arrows unprefixed to prevent particle swarms.
-3. **Morph, Stagger Timing, 3D & Multilingual Font Binding:**
-   - Construct rotating shapes at canonical `0 deg` and animate via `<a:xfrm rot="...">`. Keep identical `!!name` and geometry type across consecutive slides.
-   - Add post-Morph stagger reveals (`sb.add_stagger(sp_id, effect="fade|wipe|fly", delay_ms=...)`) cleanly in `<p:timing>` after `<p:transition>`.
-   - Use `split_script_runs()` / `rpr_xml()` so Latin (`Arial`/`Calibri`), Thai (`Noto Sans Thai`/`Tahoma`), Lao (`Noto Sans Lao`/`Phetsarath OT`), and CJK bind cleanly across `<a:latin>`, `<a:cs>`, `<a:ea>`.
-   - Set `target="desktop"|"web"` on `SlideBuilder` & `write_pptx(..., embed_fonts=..., target=...)` per `references/benchmarks.md` so Desktop-only `<a:scene3d>` / `<a:sp3d>` and `.odttf` font embedding (`<p:embeddedFontLst>`) are gated automatically for PowerPoint Web.
+### Gate 2: TRY / EXCEPT Style & Reference Resolution
 
-### Step 4: Audit & Visual Contact Sheet Verification
+- **TRY (User Has a Reference / Template):**
+  - Extract exact RGB/Hex palette, typography, layout rhythm, and persistent `!!` anchors from the user's `.pptx`, video (`ffmpeg -i ref.mp4 -vf "fps=2" frames/frame_%03d.png`), or image.
+  - Honor and elevate their existing visual language—never overwrite it with a generic preset.
+  - Optionally save extracted tokens to `references/benchmarks.md` as a reusable Style Pack so future decks can invoke the style without creating a new skill.
+- **EXCEPT NoUserReference (Multi-Source Web Research & Elevation):**
+  - Search multiple design/presentation references on the web (`search_web`) matching `[Topic × Preferred Vibe × Audience]`.
+  - **Anti-Dribbble Trap Filter:** Extract only **Color Palette** (60-30-10 rule, `>= 4.5:1` body contrast), **Grid Rhythm**, and **Visual Hierarchy**. Never copy tiny `6–8 pt` web-shot font sizes or tight English-only box heights; apply Thai/Lao line-height safety margins.
+  - Synthesize **2–3 elevated visual directions** paired with fitting Morph Rigs (or select from `references/benchmarks.md` when speed is requested).
+
+---
+
+### Gate 3: Draft Plan Gate (Approve Before Compile)
+
+Before generating `.pptx` files or build scripts, present a concise Draft Plan for user approval:
+
+1. **Mini Style Preview:** 60-30-10 color tokens, projector type scale, and wireframe layout sketch.
+2. **No-Drop Content Map:** `core_thesis`, `proof_points`, `takeaway`, and `[NEED DATA]` flags per topic—verifying zero perspectives were dropped.
+3. **Slide-by-Slide Storyboard:** Layout pattern (`Hero` / `Bento` / `Split` / `Table` / `Chart`—never repeat the exact same grid 3 slides in a row), auto-split Morph continuations where needed, assigned Morph Rig (`A–G`), and `!!anchor` continuity map across `Slide N -> Slide N+1`.
+
+**Wait for user confirmation or edits before proceeding to Gate 4.**
+
+---
+
+### Gate 4: Algorithmic Compile & Verification Gate
+
+#### 1. Enforceable Design & Typography Standards (`10 x 5.625 in` 16:9 Canvas)
+
+- **Projector Type Scale:**
+  - Cover / Main Title: `22–34 pt` Bold
+  - Card / Section Header: `14–18 pt` Bold (`0.46–0.54 in` height for 2-line headers)
+  - Body Copy: `11–13 pt` (`line_spacing >= 1.18`, card padding `>= 0.14 in`)
+  - Dense Technical / ER Diagrams: `9.5–11.5 pt` across 3–4 clean Bento clusters
+  - **Hard floor:** `>= 9.0 pt` everywhere
+- **Multilingual XML Binding & Pre-Build Solver (`scripts/layout_solver.py`):**
+  - Call `validate_content_inventory()` before building slides.
+  - Measure every Thai/Lao/Latin text block via `measure_text_block()` and `solve_vertical_stack()`, segmenting words on valid orthographic syllable/word boundaries; route `overflow_ids` to Morph continuation slides rather than shrinking text.
+  - Verify `check_aabb_collisions(boxes) == []` and `compute_whitespace_ratio(boxes)`.
+  - For Lao (`Phetsarath OT` / `Noto Sans Lao`), Thai (`Noto Sans Thai` / `Tahoma`), and CJK, explicitly bind `<a:cs typeface="..."/>` and `<a:ea typeface="..."/>` alongside `<a:latin>` on every `<a:rPr>` run (`split_script_runs()` / `rpr_xml()`).
+- **Whitespace Budget:** `>= 28–30%` for editorial/hero slides; `>= 18%` for Bento/technical slides. One clear primary focal point per slide.
+
+#### 2. Morph Choreography Standards (7 Rigs: A–G)
+
+Map transitions semantically rather than moving objects randomly (skip multi-click overlapping Morph reveals when Delivery is `read-only`):
+
+- **A. Parallax Depth:** Foreground/midground/background cutouts move at distinct speeds (`Velocity = Distance / Time`).
+- **B. Off-Canvas Track:** Timeline steps, multi-slide overflow continuations, and sequential panels enter/exit from off-canvas (`x > 10 in` or `x < 0`).
+- **C. Depth Card Stack:** Layered cards at progressive scale/tilt promote cleanly to focus or exit off-canvas / `1%` ghost opacity.
+- **D. Crop-to-Pan (`<a:srcRect>`):** Zoom/pan into details on the exact same `!!` image anchor without duplicating cropped assets.
+- **E. Seamless Split-Curtain & Vector Masks:** Left/right `<a:custGeom>` Freeform masks sharing exact seam vertices `(x_i, y_i)` (`build_curtain_pair`, `make_svg_shape`).
+- **F. Portal Zoom:** Single `<a:custGeom>` compound-path mask (`make_portal_mask`) scaled 4x–8x across slides so the viewer flies through the opening.
+- **G. True Pivot Rotary Dial & 0-Delay 1-Click Intro:** Construct wedges/gears at `0 deg` first, then animate `<a:xfrm rot="...">` (`shape.rotation`) across slides (never pre-rotate vertices).
+- **1-Click Zero-Delay & `!!` Discipline:**
+  - Assign `!!` prefixes to **5–15 hero anchors per slide** only. Never assign `!!` to micro-connectors or dense diagram nodes (morph outer `!!tech_card` and let interior nodes cross-fade).
+  - Inject `<p159:morph option="byObject"/>` (use `byWord` or `byChar` only for Latin keyword/counter swaps; avoid `byChar` on Thai/Lao vowel clusters).
+  - Gate Desktop-only `<a:scene3d>` / `<a:sp3d>` and `.odttf` `<p:embeddedFontLst>` with `target="desktop"|"web"` on `SlideBuilder` and `write_pptx()`, and add post-Morph stagger reveals via `SlideBuilder.add_stagger(...)`.
+
+#### 3. Audit & Contact Sheet Before Delivery
 
 Run the mandatory audit and render gate:
 
 ```bash
-python3 /home/pheuang02/.gemini/skills/ph-present/scripts/render_deck.py path/to/deck.pptx --target desktop
+python3 scripts/render_deck.py path/to/deck.pptx --target desktop
 ```
 
 Inspect `contact_sheet.png` and slide PNGs with `read_file` to confirm:
-- `0` XML/relationship errors, `dups == 0`, `overflow == 0`, `0` geometry-type mismatches
-- Clean Thai/Lao syllable wraps and readable chart colors on the chosen canvas
-- Report truthfully whether rendering used LibreOffice or the built-in OOXML fallback renderer (and note that live Morph playback/timing requires opening in MS PowerPoint).
+- `overflow == 0`, `collision == 0`, and zero text-on-text or text-on-border overlaps.
+- `dups == 0` (zero duplicate `!!` anchor names on the same slide) and `0` XML/relationship/geometry-type mismatches.
+- `--target web|desktop` policy compliance and 100% editability of all shapes, charts, and tables.
+- Report truthfully whether rendering used LibreOffice + `pdftoppm` or the built-in OOXML fallback renderer (and note that live Morph playback/timing requires opening in MS PowerPoint).
+
+---
+
+## Gotchas
+
+- Skill names in storage use hyphens (`ph-present`), representing `ph.present`.
+- When deleting or merging slides in `python-pptx`, always drop the relationship via `prs.part.drop_rel(rId)` before removing the element from `prs.slides._sldIdLst`.
+- Keep `SKILL.md` focused on workflow, gates, and standards; keep layout math, OOXML compilation, and rendering inside modular `scripts/` modules.
